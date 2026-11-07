@@ -4,6 +4,13 @@ The lab rig for **SRE Field Labs**. Boxoffice is a small ticket-selling API buil
 fail in instructive ways, and every lab breaks it on purpose. The manual walks through
 each lab; this repository holds the code and scripts the labs run.
 
+**The manual:** [online](https://claude.ai/artifact/Mk24Ku5T4ofRYkVUyse57w), or open
+[`docs/sre-field-labs.html`](docs/sre-field-labs.html) in a browser after cloning. It ends
+with the Week 7 final assignment, Gatehouse.
+
+The manual's commands say `cd sre-labs-rig`; when you clone this repository the folder is
+called `sre-labs`, so use that instead.
+
 ## What's here
 
 | Path | What it is |
@@ -13,6 +20,7 @@ each lab; this repository holds the code and scripts the labs run.
 | `load/` | Locust traffic shapes (`trickle`, `off`, `steady`, `ramp`, `onsale`, `brownout`). |
 | `rig/up.sh` | Builds everything in one resource group (15–25 minutes). |
 | `rig/down.sh` | Deletes everything. |
+| `docs/sre-field-labs.html` | The SRE Field Labs manual, labs 01–15 and the final assignment. |
 | `rig/schema.sql` | Database schema and seed events. |
 | `rig/canary.sh` | Progressive rollout with automatic rollback (Lab 08). |
 | `iac/main.bicep` | Bicep starter for Lab 09. Finishing it is part of the lab. |
