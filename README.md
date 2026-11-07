@@ -20,15 +20,15 @@ called `sre-labs`, so use that instead.
 | `load/` | Locust traffic shapes (`trickle`, `off`, `steady`, `ramp`, `onsale`, `brownout`). |
 | `rig/up.sh` | Builds everything in one resource group (15–25 minutes). |
 | `rig/down.sh` | Deletes everything. |
-| `docs/sre-field-labs.html` | The SRE Field Labs manual, labs 01–15 and the final assignment. |
 | `rig/schema.sql` | Database schema and seed events. |
 | `rig/canary.sh` | Progressive rollout with automatic rollback (Lab 08). |
 | `iac/main.bicep` | Bicep starter for Lab 09. Finishing it is part of the lab. |
+| `docs/sre-field-labs.html` | The SRE Field Labs manual, labs 01–15 and the final assignment. |
 
 ## Quick start (Azure Cloud Shell, Bash)
 
 ```bash
-git clone <this repository> && cd sre-labs-rig
+git clone https://github.com/kernel-memory-dump/sre-labs.git && cd sre-labs
 LOC=westeurope bash rig/up.sh
 source .env.lab
 curl -s $BOX/events | jq '.events[0]'
