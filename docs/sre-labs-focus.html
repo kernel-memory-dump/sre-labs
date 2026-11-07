@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>SRE Labs Focus</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one lab on screen at a time. A slim sticky bar holds progress and a focus timer; below it one large
+   "now" card (idea, steps, finish line), then a compact strip of all labs, then a parking lot for stray thoughts. */
+:root{
+  --paper:#F1F4F1; --surface:#FFFFFF; --sunk:#E4EAE6; --ink:#11201A; --ink-2:#2D3C35; --muted:#5B6A63; --rule:#D1DAD5;
+  --accent:#0A6B62; --accent-bg:#DCEFEB; --page:#B4540A; --page-bg:#FBEADB; --good:#1D7A3D; --good-bg:#DCF1E2;
+  --f-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0B110F; --surface:#121A17; --sunk:#0E1513; --ink:#E0EAE5; --ink-2:#B7C6BE; --muted:#82938A; --rule:#24322C;
+  --accent:#4DC1B3; --accent-bg:#0F2F2B; --page:#F09A4C; --page-bg:#33200E; --good:#5BC488; --good-bg:#10291A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0B110F; --surface:#121A17; --sunk:#0E1513; --ink:#E0EAE5; --ink-2:#B7C6BE; --muted:#82938A; --rule:#24322C;
+  --accent:#4DC1B3; --accent-bg:#0F2F2B; --page:#F09A4C; --page-bg:#33200E; --good:#5BC488; --good-bg:#10291A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+body{background:var(--paper);color:var(--ink);font:400 18px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+a{color:var(--accent);text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:3px}
+code{font:500 .85em var(--f-mono);background:var(--sunk);padding:.05em .35em;border-radius:3px}
+.wrap{max-width:760px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;cursor:pointer}
+
+/* sticky bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--rule)}
+.bar .wrap{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding-block:10px}
+.prog{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 220px}
+.prog b{font:700 15px var(--f-body);white-space:nowrap}
+.prog .track{flex:1;height:8px;background:var(--sunk);border-radius:4px;overflow:hidden;min-width:60px}
+.prog .track i{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+.timer{display:flex;align-items:center;gap:8px}
+.timer .t{font:600 22px var(--f-mono);font-variant-numeric:tabular-nums;min-width:4.2ch;text-align:right}
+.timer .lbl{font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.timer.brk .t,.timer.brk .lbl{color:var(--page)}
+.btn{font:600 15px var(--f-body);padding:8px 14px;border-radius:8px;border:1.5px solid var(--rule);background:var(--surface);color:var(--ink)}
+.btn:hover{border-color:var(--ink-2)}
+.btn.main{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn.small{font-size:13px;padding:5px 10px}
+
+header.top{padding-block:28px 6px}
+h1{font:800 clamp(40px,7vw,64px)/.92 var(--f-display);text-transform:uppercase;margin:0 0 10px}
+h1 span{color:var(--accent)}
+.sub{color:var(--ink-2);margin:0 0 8px;max-width:52ch}
+.links{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px}
+
+/* now card */
+.now{margin-top:22px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:22px 24px 20px}
+.now-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.time{font:600 12px var(--f-mono);color:var(--muted);background:var(--sunk);padding:3px 9px;border-radius:999px}
+.now h2{font:700 clamp(30px,5vw,40px)/1.02 var(--f-display);margin:8px 0 6px;text-wrap:balance}
+.idea{font-size:19px;color:var(--ink-2);margin:0 0 16px}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ol.steps li{margin:0}
+ol.steps label{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;padding:12px 14px;border:1.5px solid var(--rule);border-radius:8px;cursor:pointer;background:var(--paper)}
+ol.steps input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--good)}
+ol.steps label:has(input:checked){background:var(--good-bg);border-color:transparent}
+ol.steps label:has(input:checked) span{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+ol.steps li.next label{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.done-when{margin:16px 0 0;padding:12px 14px;border-radius:8px;background:var(--page-bg);display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:baseline}
+.done-when b{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--page);white-space:nowrap}
+.stuck{margin:10px 0 0;font-size:15px;color:var(--muted)}
+.now-nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-top:18px}
+.cheer{font:600 15px var(--f-body);color:var(--good);min-height:22px}
+
+/* lab strip */
+h3{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:34px 0 10px}
+.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.strip a{display:grid;gap:2px;text-decoration:none;padding:8px 10px;border-radius:7px;border:1.5px solid var(--rule);background:var(--surface);color:var(--ink)}
+.strip a:hover{border-color:var(--ink-2)}
+.strip a b{font:700 18px/1 var(--f-display)}
+.strip a span{font:500 11.5px/1.25 var(--f-body);color:var(--muted)}
+.strip a.done{background:var(--good-bg);border-color:transparent}
+.strip a.done b{color:var(--good)}
+.strip a.cur{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.continue{display:inline-block;margin-top:18px;text-decoration:none;font-size:17px;padding:12px 18px}
+.crumb{margin:22px 0 0;font-size:15px}
+.crumb a{text-decoration:none;font-weight:600}
+#labview .now{margin-top:10px}
+#labview .hint{margin-top:12px}
+a.btn{text-decoration:none;display:inline-block}
+.btn[aria-disabled="true"]{opacity:.35;pointer-events:none}
+
+/* rules, stop, parking */
+.rules{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.rules li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;margin:0;font-size:16.5px}
+.rules li b{font:700 18px/1.3 var(--f-display);color:var(--accent)}
+.stop{background:var(--surface);border:1.5px solid var(--page);border-radius:10px;padding:14px 16px}
+.stop p{margin:0 0 8px;font-size:16px}
+.stop pre{margin:0;padding:10px 12px;background:var(--sunk);border-radius:6px;overflow-x:auto;font:500 13px/1.6 var(--f-mono)}
+.stop .row{display:flex;justify-content:flex-end;margin-top:8px}
+textarea{width:100%;min-height:110px;font:16px/1.5 var(--f-body);padding:12px;border:1.5px solid var(--rule);border-radius:8px;background:var(--surface);color:var(--ink);resize:vertical}
+.hint{font-size:14px;color:var(--muted);margin:6px 0 0}
+footer{margin:60px 0 80px;font-size:14px;color:var(--muted)}
+
+@media (max-width:560px){
+  body{font-size:17px}
+  .now{padding:18px 16px}
+  .timer .t{font-size:19px}
+}
+</style>
+
+<div class="bar"><div class="wrap">
+  <div class="prog"><b id="prog-txt">0 of 17 done</b><span class="track"><i id="prog-bar"></i></span></div>
+  <div class="timer" id="timer">
+    <span class="lbl" id="t-lbl">Focus</span><span class="t" id="t-val">25:00</span>
+    <button type="button" class="btn small main" id="t-go">Start</button>
+    <button type="button" class="btn small" id="t-reset">Reset</button>
+  </div>
+</div></div>
+
+<div class="wrap">
+  <main>
+  <div id="labview" hidden>
+    <p class="crumb"><a href="#home">&larr; All labs</a></p>
+    <section class="now" id="now" aria-live="polite"></section>
+    <p class="hint">Done for today? The stop commands are on the <a href="#home">labs page</a>.</p>
+  </div>
+
+  <div id="home">
+    <header class="top">
+      <h1>SRE Labs <span>Focus</span></h1>
+      <p class="sub">The short version of SRE Field Labs. Every lab is its own page: one idea, four steps, one finish line.</p>
+      <div class="links">
+        <a href="https://claude.ai/artifact/Mk24Ku5T4ofRYkVUyse57w" target="_blank" rel="noopener">Full manual</a>
+        <a href="https://claude.ai/artifact/Ay2kgSNbK2EN84668My6CF" target="_blank" rel="noopener">Vocabulary</a>
+        <a href="https://github.com/kernel-memory-dump/sre-labs" target="_blank" rel="noopener">Lab code</a>
+      </div>
+    </header>
+    <a class="btn main continue" id="continue" href="#lab00">Start with the setup</a>
+
+    <h3>Labs</h3>
+    <div class="strip" id="strip"></div>
+
+    <h3>How to work</h3>
+    <ul class="rules">
+      <li><b>1</b><span>Only look at the highlighted step. Ignore the rest.</span></li>
+      <li><b>2</b><span>Start the timer before you start the step. Break when it rings.</span></li>
+      <li><b>3</b><span>Write the number down the moment you see it. One line in your journal.</span></li>
+      <li><b>4</b><span>Stuck for 15 minutes? Message your mentor. That's the rule, not a failure.</span></li>
+      <li><b>5</b><span>A lab is done when its finish line is true. Not when it's perfect.</span></li>
+    </ul>
+
+    <h3>Stopping for the day</h3>
+    <div class="stop">
+      <p>Azure bills while you're away. Run this before you close the laptop.</p>
+      <pre id="stop-cmd">source .env.lab
+az postgres flexible-server stop -g $RG -n $PG
+az containerapp update -n loadgen -g $RG --set-env-vars SHAPE=off -o none
+az aks stop -g $RG -n aks-sre        # only from Lab 11 on</pre>
+      <div class="row"><button type="button" class="btn small" id="stop-copy">Copy</button></div>
+    </div>
+  </div>
+
+    <h3>Parking lot</h3>
+    <textarea id="park" placeholder="Had an idea or a worry that isn't this step? Write it here and get back to the step."></textarea>
+    <p class="hint">Saved in this browser only. Read it at the end of the session.</p>
+  </main>
+
+  <footer>Each lab links to its full version in the manual for details, commands and debrief questions.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var MANUAL = "https://claude.ai/artifact/Mk24Ku5T4ofRYkVUyse57w#";
+  var LABS = [
+    {n:"00", a:"rig", t:"Set up the lab rig", h:"1–2 h", i:"Build the practice app on Azure once. Every lab uses it.",
+     s:["Set a $100 budget alert in Cost Management.", "Clone the lab code in Azure Cloud Shell.", "Run <code>bash rig/up.sh</code> and wait.", "Run <code>curl -s $BOX/events</code>."],
+     d:"You see requests in Application Insights → Live Metrics.", k:"If <code>up.sh</code> fails, rerun it; most steps are safe to repeat."},
+    {n:"01", a:"lab01", t:"Measure what users feel", h:"3 h", i:"CPU can be fine while users fail. Measure the user's result.",
+     s:["Make payments fail 30% (copy the command from the lab).", "Show the dashboard says 0 errors.", "Find the hidden failures in the <code>/pay</code> dependency calls.", "Set <code>LEGACY_200_ERRORS=0</code> and run the SLI query."],
+     d:"Checkout SLI shows about 97%.", k:"Look at the dependencies table, not requests."},
+    {n:"02", a:"lab02", t:"Pick a target, get a budget", h:"4 h", i:"100% is the wrong goal. Your dependencies set a ceiling.",
+     s:["Multiply the SLAs in the dependency instrument.", "Write an SLO for browse, reserve and checkout.", "Add the budget query to a workbook.", "Break payments for 5 minutes on purpose."],
+     d:"Predicted and measured budget spend agree within 20%.", k:"The error budget instrument does the prediction for you."},
+    {n:"03", a:"lab03", t:"Page only when it matters", h:"3 h + overnight", i:"Alert when the budget burns fast, not on every blip.",
+     s:["Create the CPU and 1% error alerts.", "Create the fast-burn and slow-burn alerts.", "Run the 90-second blip and the 10-minute outage.", "Start the slow burn before bed. Check in the morning."],
+     d:"A table shows which alert fired, and when, for each scenario.", k:"Set the alert lookback to the query's longest window."},
+    {n:"04", a:"lab04", t:"Find the real bottleneck", h:"5 h", i:"A locked row doesn't get faster on a bigger box.",
+     s:["Run the <code>ramp</code> load and note the top speed.", "Scale everything up. Run it again.", "Open one slow trace. Find the lock.", "Set <code>RESERVE_MODE=v2</code> and find the next bottleneck."],
+     d:"Top speed is the same at 1× and 6× resources.", k:"Only event 1 stops scaling. Ask why."},
+    {n:"05", a:"lab05", t:"Stop the retry storm", h:"4 h", i:"Retries multiply load and can charge a card twice.",
+     s:["Run <code>brownout</code> load and slow the payment provider.", "Count provider calls and duplicate charges.", "Turn on <code>PAY_IDEMPOTENCY=1</code>.", "Apply the retry policy. Run it again."],
+     d:"Zero duplicate charges. Calls per checkout 1.5× or less.", k:"<code>curl $DEPS/admin/faults</code> shows the counters."},
+    {n:"06", a:"lab06", t:"Contain a slow dependency", h:"3 h", i:"A slow extra feature shouldn't take checkout down.",
+     s:["Make recommendations take 20 seconds.", "See checkout fail while CPU stays low.", "Set a short timeout, a bulkhead and a cache.", "Run it again."],
+     d:"Checkout stays at 99.5% or better while recommendations are slow.", k:"Threads needed = requests per second × seconds each waits."},
+    {n:"07", a:"lab07", t:"Survive a traffic spike", h:"4 h", i:"Refuse extra work fast so the rest gets served.",
+     s:["Measure capacity with <code>ramp</code>.", "Run the <code>onsale</code> spike with no protection.", "Turn on <code>SHED=1</code> and client backoff.", "Run the spike again."],
+     d:"Checkout keeps at least 80% of capacity during the spike.", k:"Play with the overload instrument first. It shows the shape."},
+    {n:"08", a:"lab08", t:"Release to 5% first", h:"4 h", i:"Most outages start with a change. Make changes small and reversible.",
+     s:["Switch to multiple revisions. Pin traffic to the current one.", "Deploy the buggy v2 at 0%.", "Run <code>rig/canary.sh</code>.", "Ship a good v3 the same way."],
+     d:"The bad release rolled back with nobody touching it.", k:"Use the <code>steady</code> load. Trickle is too little traffic."},
+    {n:"09", a:"lab09", t:"Turn clicks into code", h:"6–8 h", i:"Anything you did by hand, you'll have to do by hand again.",
+     s:["List every manual change from Labs 01–08.", "Build the images into the registry.", "Finish the Bicep starter.", "Deploy into an empty resource group. Run what-if."],
+     d:"One command rebuilds everything in under 30 minutes.", k:"Do one resource at a time. Deploy after each."},
+    {n:"10", a:"lab10", t:"Plan for a dead server", h:"4 h", i:"One big server is still one server.",
+     s:["Restart the database on two sizes. Compare.", "Turn on zone-redundant HA.", "Force a failover. Measure the errors.", "Set <code>DB_PREPING=1</code>. Fail over again."],
+     d:"You know what one failover costs in error budget.", k:"Pick a region with availability zones."},
+    {n:"11", a:"lab11", t:"Break it on purpose", h:"6 h", i:"Test what you believe before an outage does.",
+     s:["Write down what you think will happen.", "Create AKS and install the demo shop.", "Run three experiments, one at a time.", "Fix one wrong belief. Run it again."],
+     d:"One belief was wrong, and the fix is proven.", k:"Stop AKS every evening: <code>az aks stop</code>."},
+    {n:"12", a:"lab12", t:"Find what failing requests share", h:"5 h", i:"Go from a dashboard to one bad request to the thing they have in common.",
+     s:["Your mentor turns on a hidden fault.", "Dashboard → trace → shared attribute.", "Repeat for two more faults.", "Add tail sampling. Check errors are kept."],
+     d:"Three answers, each in under 15 minutes.", k:"Filter traces by error first."},
+    {n:"13", a:"lab13", t:"Run an incident", h:"4 h", i:"Coordinate first. Debug second.",
+     s:["Prepare the incident and update templates.", "When paged: declare, pick a severity, say your roles.", "Ask what changed. Undo it.", "Send updates on time until it's over."],
+     d:"Timeline written, every update sent on time.", k:"Set a 15-minute timer for status updates."},
+    {n:"14", a:"lab14", t:"Write the postmortem", h:"4 h", i:"Fix the system, not the person.",
+     s:["Fill in the postmortem template.", "List at least three contributing factors.", "Review it with your mentor.", "Ship one action item."],
+     d:"One action item is done and verified.", k:"If a sentence names a person, rewrite it about the system."},
+    {n:"15", a:"lab15", t:"Lose a whole region", h:"8–10 h", i:"Backups are not a recovery time. Measure the real one.",
+     s:["Agree the recovery targets with your mentor.", "Build region B from your Bicep.", "Add a database replica and Front Door.", "Run the disaster drill."],
+     d:"Your mentor ran your runbook alone, and it worked.", k:"Read replicas need General Purpose, not Burstable."},
+    {n:"FA", a:"final", t:"Final assignment: Gatehouse", h:"about a week", i:"Build it, run it, break it, design the big version, defend it.",
+     s:["Build: the service, tests, README, deploy.", "Operate: SLOs, load test, three drills, postmortem.", "Design: three nodes, per-command trade-offs.", "Defend: 60 minutes with your mentor."],
+     d:"70+ points, and at least half in every phase.", k:"The grading key is in the manual. Read it first."}
+  ];
+
+  function load(k, d){ try{ var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  var $ = function(s){ return document.querySelector(s); };
+  var ticks = load("sre-focus-ticks", {});
+  function isDone(i){ return LABS[i].s.every(function(_, j){ return ticks[i + "-" + j]; }); }
+  function firstOpen(){ for(var i = 0; i < LABS.length; i++){ if(!isDone(i)) return i; } return LABS.length - 1; }
+  var cur = load("sre-focus-cur", null);
+  if(cur == null || cur < 0 || cur >= LABS.length) cur = firstOpen();
+  function token(i){ return LABS[i].n === "FA" ? "final" : "lab" + LABS[i].n; }
+  function label(i){ return LABS[i].n === "FA" ? "Final" : "Lab " + LABS[i].n; }
+
+  function renderNow(msg){
+    var L = LABS[cur], next = -1;
+    L.s.forEach(function(_, j){ if(next < 0 && !ticks[cur + "-" + j]) next = j; });
+    var html = '<div class="now-top"><span class="tag">' + (L.n === "FA" ? "Final" : "Lab " + L.n) + '</span><span class="time">' + L.h + '</span></div>' +
+      '<h2>' + L.t + '</h2><p class="idea">' + L.i + '</p><ol class="steps">';
+    L.s.forEach(function(st, j){
+      var id = "st-" + cur + "-" + j;
+      html += '<li' + (j === next ? ' class="next"' : '') + '><label for="' + id + '"><input type="checkbox" id="' + id + '" data-k="' + cur + '-' + j + '"' + (ticks[cur + "-" + j] ? " checked" : "") + '><span>' + st + '</span></label></li>';
+    });
+    html += '</ol><p class="done-when"><b>Done when</b><span>' + L.d + '</span></p>' +
+      '<p class="stuck">Stuck? ' + L.k + ' Details: <a href="' + MANUAL + L.a + '" target="_blank" rel="noopener">full ' + (L.n === "FA" ? "assignment" : L.n === "00" ? "setup" : "lab") + '</a>.</p>' +
+      '<div class="now-nav"><a class="btn" href="#' + (cur > 0 ? token(cur - 1) : "home") + '"' + (cur === 0 ? ' aria-disabled="true" tabindex="-1"' : '') + '>Previous</a><span class="cheer" id="cheer">' + (msg || "") + '</span>' +
+      (cur < LABS.length - 1 ? '<a class="btn main" href="#' + token(cur + 1) + '">Next: ' + label(cur + 1) + '</a>' : '<a class="btn main" href="#home">All labs</a>') + '</div>';
+    $("#now").innerHTML = html;
+    Array.prototype.forEach.call(document.querySelectorAll("#now input"), function(cb){
+      cb.addEventListener("change", function(){
+        var k = cb.getAttribute("data-k"); if(cb.checked) ticks[k] = 1; else delete ticks[k];
+        save("sre-focus-ticks", ticks);
+        var done = isDone(cur);
+        renderNow(done ? "Lab done. Take a real break." : cb.checked ? "Nice. One step closer." : "");
+        renderStrip(); renderProg();
+      });
+    });
+  }
+  function renderStrip(){
+    var s = $("#strip"); s.innerHTML = "";
+    LABS.forEach(function(L, i){
+      var a = document.createElement("a"); a.href = "#" + token(i);
+      a.className = (isDone(i) ? "done " : "") + (i === cur ? "cur" : "");
+      a.innerHTML = "<b>" + L.n + "</b><span>" + L.t + "</span>";
+      a.setAttribute("aria-label", label(i) + ": " + L.t + (isDone(i) ? ", done" : ""));
+      s.appendChild(a);
+    });
+    var started = Object.keys(ticks).length > 0, next = firstOpen(), c = $("#continue");
+    c.href = "#" + token(next);
+    c.textContent = started ? "Continue: " + label(next) + " · " + LABS[next].t : "Start with the setup";
+  }
+  /* each lab is its own page, addressed by #lab00 ... #lab15 and #final; anything else is the labs page */
+  function route(want){
+    var h = typeof want === "string" ? want : location.hash.slice(1), i = -1;
+    LABS.forEach(function(_, j){ if(token(j) === h) i = j; });
+    $("#labview").hidden = i < 0; $("#home").hidden = i >= 0;
+    if(i >= 0){ cur = i; save("sre-focus-cur", cur); renderNow(); }
+    else renderStrip();
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", function(){ route(); });
+  // In-page links switch the view directly, so pages still work where the hash can't change.
+  document.addEventListener("click", function(e){
+    var a = e.target.closest('a[href^="#"]'); if(!a) return;
+    e.preventDefault();
+    var h = a.getAttribute("href").slice(1);
+    route(h);
+    try{ if(location.hash.slice(1) !== h) history.replaceState(null, "", "#" + h); }catch(err){}
+  });
+  function renderProg(){
+    var n = LABS.filter(function(_, i){ return isDone(i); }).length;
+    $("#prog-txt").textContent = n + " of " + LABS.length + " done";
+    $("#prog-bar").style.width = (n / LABS.length * 100) + "%";
+  }
+
+  /* focus timer: 25 minutes focus, 5 minutes break, no sound */
+  var FOCUS = 25 * 60, BREAK = 5 * 60, mode = "focus", left = FOCUS, tick = null, baseTitle = document.title;
+  function show(){
+    var m = Math.floor(left / 60), s = left % 60;
+    $("#t-val").textContent = m + ":" + (s < 10 ? "0" : "") + s;
+    $("#t-lbl").textContent = mode === "focus" ? "Focus" : "Break";
+    $("#timer").classList.toggle("brk", mode === "break");
+    document.title = tick ? $("#t-val").textContent + " " + (mode === "focus" ? "focus" : "break") + " · " + baseTitle : baseTitle;
+  }
+  function stop(){ clearInterval(tick); tick = null; $("#t-go").textContent = "Start"; show(); }
+  $("#t-go").addEventListener("click", function(){
+    if(tick){ stop(); return; }
+    $("#t-go").textContent = "Pause";
+    tick = setInterval(function(){
+      left--;
+      if(left <= 0){
+        mode = mode === "focus" ? "break" : "focus"; left = mode === "focus" ? FOCUS : BREAK;
+        stop();
+        var c = $("#cheer"); if(c) c.textContent = mode === "break" ? "Time's up. Stand up for 5 minutes." : "Break over. Back to the highlighted step.";
+        return;
+      }
+      show();
+    }, 1000);
+    show();
+  });
+  $("#t-reset").addEventListener("click", function(){ mode = "focus"; left = FOCUS; stop(); });
+
+  /* stop commands, parking lot */
+  $("#stop-copy").addEventListener("click", function(){
+    var pre = $("#stop-cmd"), b = this;
+    var fallback = function(){ var r = document.createRange(); r.selectNodeContents(pre); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected"; };
+    try{ navigator.clipboard.writeText(pre.textContent).then(function(){ b.textContent = "Copied"; setTimeout(function(){ b.textContent = "Copy"; }, 1500); }, fallback); }catch(e){ fallback(); }
+  });
+  var park = $("#park"); park.value = load("sre-focus-park", "");
+  park.addEventListener("input", function(){ save("sre-focus-park", park.value); });
+
+  renderProg(); show(); route();
+})();
+</script>
+
+</body>
+</html>

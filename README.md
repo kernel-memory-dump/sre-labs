@@ -12,6 +12,10 @@ with the Week 7 final assignment, Gatehouse.
 [`docs/sre-field-vocabulary.html`](docs/sre-field-vocabulary.html). 133 terms grouped by the
 six course modules, each linked to its lab, with flashcards and a quiz.
 
+**The short version:** [online](https://claude.ai/artifact/LwLX5kR2cFwT7h4hQaYk1E), or open
+[`docs/sre-labs-focus.html`](docs/sre-labs-focus.html). Every lab on its own page: one idea,
+four steps and a finish line, with a focus timer.
+
 The manual's commands say `cd sre-labs-rig`; when you clone this repository the folder is
 called `sre-labs`, so use that instead.
 
@@ -29,6 +33,7 @@ called `sre-labs`, so use that instead.
 | `iac/main.bicep` | Bicep starter for Lab 09. Finishing it is part of the lab. |
 | `docs/sre-field-labs.html` | The SRE Field Labs manual, labs 01–15 and the final assignment. |
 | `docs/sre-field-vocabulary.html` | SRE Field Vocabulary: course terms with flashcards and a quiz. |
+| `docs/sre-labs-focus.html` | SRE Labs Focus: the short version, one page per lab. |
 
 ## Quick start (Azure Cloud Shell, Bash)
 
