@@ -67,6 +67,8 @@ h1 span{color:var(--accent)}
 .tag{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
 .time{font:600 12px var(--f-mono);color:var(--muted);background:var(--sunk);padding:3px 9px;border-radius:999px}
 .now h2{font:700 clamp(30px,5vw,40px)/1.02 var(--f-display);margin:8px 0 6px;text-wrap:balance}
+.gain{margin:4px 0 14px;padding:10px 14px;border-radius:8px;background:var(--accent-bg);display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:baseline;font-size:16.5px;color:var(--ink)}
+.gain b{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--accent);white-space:nowrap}
 .idea{font-size:19px;color:var(--ink-2);margin:0 0 16px}
 ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 ol.steps li{margin:0}
@@ -112,6 +114,7 @@ textarea{width:100%;min-height:110px;font:16px/1.5 var(--f-body);padding:12px;bo
 footer{margin:60px 0 80px;font-size:14px;color:var(--muted)}
 
 @media (max-width:560px){
+  .gain,.done-when{grid-template-columns:minmax(0,1fr);gap:2px}
   body{font-size:17px}
   .now{padding:18px 16px}
   .timer .t{font-size:19px}
@@ -183,55 +186,55 @@ az aks stop -g $RG -n aks-sre        # only from Lab 11 on</pre>
   "use strict";
   var MANUAL = "https://claude.ai/artifact/Mk24Ku5T4ofRYkVUyse57w#";
   var LABS = [
-    {n:"00", a:"rig", t:"Set up the lab rig", h:"1–2 h", i:"Build the practice app on Azure once. Every lab uses it.",
+    {n:"00", g:"A cloud playground you can break as much as you like, rebuilt with one script.", a:"rig", t:"Set up the lab rig", h:"1–2 h", i:"Build the practice app on Azure once. Every lab uses it.",
      s:["Set a $100 budget alert in Cost Management.", "Clone the lab code in Azure Cloud Shell.", "Run <code>bash rig/up.sh</code> and wait.", "Run <code>curl -s $BOX/events</code>."],
      d:"You see requests in Application Insights → Live Metrics.", k:"If <code>up.sh</code> fails, rerun it; most steps are safe to repeat."},
-    {n:"01", a:"lab01", t:"Measure what users feel", h:"3 h", i:"CPU can be fine while users fail. Measure the user's result.",
+    {n:"01", g:"You can tell when an all-green dashboard is lying, and write the query that proves it.", a:"lab01", t:"Measure what users feel", h:"3 h", i:"CPU can be fine while users fail. Measure the user's result.",
      s:["Make payments fail 30% (copy the command from the lab).", "Show the dashboard says 0 errors.", "Find the hidden failures in the <code>/pay</code> dependency calls.", "Set <code>LEGACY_200_ERRORS=0</code> and run the SLI query."],
      d:"Checkout SLI shows about 97%.", k:"Look at the dependencies table, not requests."},
-    {n:"02", a:"lab02", t:"Pick a target, get a budget", h:"4 h", i:"100% is the wrong goal. Your dependencies set a ceiling.",
+    {n:"02", g:"You can answer “can we promise 99.99%?” with numbers instead of opinions.", a:"lab02", t:"Pick a target, get a budget", h:"4 h", i:"100% is the wrong goal. Your dependencies set a ceiling.",
      s:["Multiply the SLAs in the dependency instrument.", "Write an SLO for browse, reserve and checkout.", "Add the budget query to a workbook.", "Break payments for 5 minutes on purpose."],
      d:"Predicted and measured budget spend agree within 20%.", k:"The error budget instrument does the prediction for you."},
-    {n:"03", a:"lab03", t:"Page only when it matters", h:"3 h + overnight", i:"Alert when the budget burns fast, not on every blip.",
+    {n:"03", g:"Alerts you can trust: you sleep through blips and get woken only for real fires.", a:"lab03", t:"Page only when it matters", h:"3 h + overnight", i:"Alert when the budget burns fast, not on every blip.",
      s:["Create the CPU and 1% error alerts.", "Create the fast-burn and slow-burn alerts.", "Run the 90-second blip and the 10-minute outage.", "Start the slow burn before bed. Check in the morning."],
      d:"A table shows which alert fired, and when, for each scenario.", k:"Set the alert lookback to the query's longest window."},
-    {n:"04", a:"lab04", t:"Find the real bottleneck", h:"5 h", i:"A locked row doesn't get faster on a bigger box.",
+    {n:"04", g:"You know when a bigger server helps and when it’s wasted money.", a:"lab04", t:"Find the real bottleneck", h:"5 h", i:"A locked row doesn't get faster on a bigger box.",
      s:["Run the <code>ramp</code> load and note the top speed.", "Scale everything up. Run it again.", "Open one slow trace. Find the lock.", "Set <code>RESERVE_MODE=v2</code> and find the next bottleneck."],
      d:"Top speed is the same at 1× and 6× resources.", k:"Only event 1 stops scaling. Ask why."},
-    {n:"05", a:"lab05", t:"Stop the retry storm", h:"4 h", i:"Retries multiply load and can charge a card twice.",
+    {n:"05", g:"You can stop a retry storm, and explain why it didn’t stop on its own.", a:"lab05", t:"Stop the retry storm", h:"4 h", i:"Retries multiply load and can charge a card twice.",
      s:["Run <code>brownout</code> load and slow the payment provider.", "Count provider calls and duplicate charges.", "Turn on <code>PAY_IDEMPOTENCY=1</code>.", "Apply the retry policy. Run it again."],
      d:"Zero duplicate charges. Calls per checkout 1.5× or less.", k:"<code>curl $DEPS/admin/faults</code> shows the counters."},
-    {n:"06", a:"lab06", t:"Contain a slow dependency", h:"3 h", i:"A slow extra feature shouldn't take checkout down.",
+    {n:"06", g:"You can keep one slow feature from taking the whole site down.", a:"lab06", t:"Contain a slow dependency", h:"3 h", i:"A slow extra feature shouldn't take checkout down.",
      s:["Make recommendations take 20 seconds.", "See checkout fail while CPU stays low.", "Set a short timeout, a bulkhead and a cache.", "Run it again."],
      d:"Checkout stays at 99.5% or better while recommendations are slow.", k:"Threads needed = requests per second × seconds each waits."},
-    {n:"07", a:"lab07", t:"Survive a traffic spike", h:"4 h", i:"Refuse extra work fast so the rest gets served.",
+    {n:"07", g:"You can keep a site serving through a traffic spike no budget could cover.", a:"lab07", t:"Survive a traffic spike", h:"4 h", i:"Refuse extra work fast so the rest gets served.",
      s:["Measure capacity with <code>ramp</code>.", "Run the <code>onsale</code> spike with no protection.", "Turn on <code>SHED=1</code> and client backoff.", "Run the spike again."],
      d:"Checkout keeps at least 80% of capacity during the spike.", k:"Play with the overload instrument first. It shows the shape."},
-    {n:"08", a:"lab08", t:"Release to 5% first", h:"4 h", i:"Most outages start with a change. Make changes small and reversible.",
+    {n:"08", g:"Releases that roll themselves back before customers notice.", a:"lab08", t:"Release to 5% first", h:"4 h", i:"Most outages start with a change. Make changes small and reversible.",
      s:["Switch to multiple revisions. Pin traffic to the current one.", "Deploy the buggy v2 at 0%.", "Run <code>rig/canary.sh</code>.", "Ship a good v3 the same way."],
      d:"The bad release rolled back with nobody touching it.", k:"Use the <code>steady</code> load. Trickle is too little traffic."},
-    {n:"09", a:"lab09", t:"Turn clicks into code", h:"6–8 h", i:"Anything you did by hand, you'll have to do by hand again.",
+    {n:"09", g:"A whole environment rebuilt with one command, and “who changed what?” answered from git.", a:"lab09", t:"Turn clicks into code", h:"6–8 h", i:"Anything you did by hand, you'll have to do by hand again.",
      s:["List every manual change from Labs 01–08.", "Build the images into the registry.", "Finish the Bicep starter.", "Deploy into an empty resource group. Run what-if."],
      d:"One command rebuilds everything in under 30 minutes.", k:"Do one resource at a time. Deploy after each."},
-    {n:"10", a:"lab10", t:"Plan for a dead server", h:"4 h", i:"One big server is still one server.",
+    {n:"10", g:"You know what a failover really costs, and how much spare capacity survives losing a zone.", a:"lab10", t:"Plan for a dead server", h:"4 h", i:"One big server is still one server.",
      s:["Restart the database on two sizes. Compare.", "Turn on zone-redundant HA.", "Force a failover. Measure the errors.", "Set <code>DB_PREPING=1</code>. Fail over again."],
      d:"You know what one failover costs in error budget.", k:"Pick a region with availability zones."},
-    {n:"11", a:"lab11", t:"Break it on purpose", h:"6 h", i:"Test what you believe before an outage does.",
+    {n:"11", g:"You find weak spots with safe experiments, before an outage finds them for you.", a:"lab11", t:"Break it on purpose", h:"6 h", i:"Test what you believe before an outage does.",
      s:["Write down what you think will happen.", "Create AKS and install the demo shop.", "Run three experiments, one at a time.", "Fix one wrong belief. Run it again."],
      d:"One belief was wrong, and the fix is proven.", k:"Stop AKS every evening: <code>az aks stop</code>."},
-    {n:"12", a:"lab12", t:"Find what failing requests share", h:"5 h", i:"Go from a dashboard to one bad request to the thing they have in common.",
+    {n:"12", g:"You can find what failing requests have in common in minutes, not hours.", a:"lab12", t:"Find what failing requests share", h:"5 h", i:"Go from a dashboard to one bad request to the thing they have in common.",
      s:["Your mentor turns on a hidden fault.", "Dashboard → trace → shared attribute.", "Repeat for two more faults.", "Add tail sampling. Check errors are kept."],
      d:"Three answers, each in under 15 minutes.", k:"Filter traces by error first."},
-    {n:"13", a:"lab13", t:"Run an incident", h:"4 h", i:"Coordinate first. Debug second.",
+    {n:"13", g:"You can run an incident calmly: roles, regular updates, fix first.", a:"lab13", t:"Run an incident", h:"4 h", i:"Coordinate first. Debug second.",
      s:["Prepare the incident and update templates.", "When paged: declare, pick a severity, say your roles.", "Ask what changed. Undo it.", "Send updates on time until it's over."],
      d:"Timeline written, every update sent on time.", k:"Set a 15-minute timer for status updates."},
-    {n:"14", a:"lab14", t:"Write the postmortem", h:"4 h", i:"Fix the system, not the person.",
+    {n:"14", g:"Postmortems that change the system instead of blaming a person.", a:"lab14", t:"Write the postmortem", h:"4 h", i:"Fix the system, not the person.",
      s:["Fill in the postmortem template.", "List at least three contributing factors.", "Review it with your mentor.", "Ship one action item."],
      d:"One action item is done and verified.", k:"If a sentence names a person, rewrite it about the system."},
-    {n:"15", a:"lab15", t:"Lose a whole region", h:"8–10 h", i:"Backups are not a recovery time. Measure the real one.",
+    {n:"15", g:"A recovery plan someone else can run, with measured recovery times.", a:"lab15", t:"Lose a whole region", h:"8–10 h", i:"Backups are not a recovery time. Measure the real one.",
      s:["Agree the recovery targets with your mentor.", "Build region B from your Bicep.", "Add a database replica and Front Door.", "Run the disaster drill."],
      d:"Your mentor ran your runbook alone, and it worked.", k:"Read replicas need General Purpose, not Burstable."},
-    {n:"FA", a:"final", t:"Final assignment: Gatehouse", h:"about a week", i:"Build it, run it, break it, design the big version, defend it.",
+    {n:"FA", g:"A portfolio project that covers the whole course, plus a live defence that’s good practice for interviews.", a:"final", t:"Final assignment: Gatehouse", h:"about a week", i:"Build it, run it, break it, design the big version, defend it.",
      s:["Build: the service, tests, README, deploy.", "Operate: SLOs, load test, three drills, postmortem.", "Design: three nodes, per-command trade-offs.", "Defend: 60 minutes with your mentor."],
      d:"70+ points, and at least half in every phase.", k:"The grading key is in the manual. Read it first."}
   ];
@@ -251,7 +254,7 @@ az aks stop -g $RG -n aks-sre        # only from Lab 11 on</pre>
     var L = LABS[cur], next = -1;
     L.s.forEach(function(_, j){ if(next < 0 && !ticks[cur + "-" + j]) next = j; });
     var html = '<div class="now-top"><span class="tag">' + (L.n === "FA" ? "Final" : "Lab " + L.n) + '</span><span class="time">' + L.h + '</span></div>' +
-      '<h2>' + L.t + '</h2><p class="idea">' + L.i + '</p><ol class="steps">';
+      '<h2>' + L.t + '</h2><p class="gain"><b>What you get</b><span>' + L.g + '</span></p><p class="idea">' + L.i + '</p><ol class="steps">';
     L.s.forEach(function(st, j){
       var id = "st-" + cur + "-" + j;
       html += '<li' + (j === next ? ' class="next"' : '') + '><label for="' + id + '"><input type="checkbox" id="' + id + '" data-k="' + cur + '-' + j + '"' + (ticks[cur + "-" + j] ? " checked" : "") + '><span>' + st + '</span></label></li>';
