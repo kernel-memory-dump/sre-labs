@@ -8,6 +8,10 @@ each lab; this repository holds the code and scripts the labs run.
 [`docs/sre-field-labs.html`](docs/sre-field-labs.html) in a browser after cloning. It ends
 with the Week 7 final assignment, Gatehouse.
 
+**The vocabulary:** [online](https://claude.ai/artifact/Ay2kgSNbK2EN84668My6CF), or open
+[`docs/sre-field-vocabulary.html`](docs/sre-field-vocabulary.html). 133 terms grouped by the
+six course modules, each linked to its lab, with flashcards and a quiz.
+
 The manual's commands say `cd sre-labs-rig`; when you clone this repository the folder is
 called `sre-labs`, so use that instead.
 
@@ -24,6 +28,7 @@ called `sre-labs`, so use that instead.
 | `rig/canary.sh` | Progressive rollout with automatic rollback (Lab 08). |
 | `iac/main.bicep` | Bicep starter for Lab 09. Finishing it is part of the lab. |
 | `docs/sre-field-labs.html` | The SRE Field Labs manual, labs 01–15 and the final assignment. |
+| `docs/sre-field-vocabulary.html` | SRE Field Vocabulary: course terms with flashcards and a quiz. |
 
 ## Quick start (Azure Cloud Shell, Bash)
 

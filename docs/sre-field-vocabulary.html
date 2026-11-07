@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>SRE Field Vocabulary</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: companion to SRE Field Labs. A sticky control bar (mode, module, search) over one reading column;
+   Read mode is a term/definition ledger grouped by course module, Flashcards and Quiz reuse the same filtered set. */
+:root{
+  --paper:#F1F4F1; --surface:#FFFFFF; --sunk:#E4EAE6; --ink:#11201A; --ink-2:#2D3C35; --muted:#5B6A63; --rule:#D1DAD5;
+  --accent:#0A6B62; --accent-bg:#DCEFEB; --page:#B4540A; --page-bg:#FBEADB;
+  --good:#1D7A3D; --good-bg:#DCF1E2; --bad:#B3261E; --bad-bg:#F8E0DC;
+  --f-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0B110F; --surface:#121A17; --sunk:#0E1513; --ink:#E0EAE5; --ink-2:#B7C6BE; --muted:#82938A; --rule:#24322C;
+  --accent:#4DC1B3; --accent-bg:#0F2F2B; --page:#F09A4C; --page-bg:#33200E;
+  --good:#5BC488; --good-bg:#10291A; --bad:#F2847B; --bad-bg:#351815;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0B110F; --surface:#121A17; --sunk:#0E1513; --ink:#E0EAE5; --ink-2:#B7C6BE; --muted:#82938A; --rule:#24322C;
+  --accent:#4DC1B3; --accent-bg:#0F2F2B; --page:#F09A4C; --page-bg:#33200E;
+  --good:#5BC488; --good-bg:#10291A; --bad:#F2847B; --bad-bg:#351815;
+  color-scheme:dark}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
+a{color:var(--accent);text-underline-offset:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+code{font:500 .88em var(--f-mono);background:var(--sunk);padding:.05em .3em;border-radius:3px}
+.wrap{max-width:980px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+header.top{padding-block:36px 18px}
+.eyebrow{font:600 11.5px var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+h1{font:800 clamp(44px,8vw,84px)/.9 var(--f-display);text-transform:uppercase;margin:12px 0 10px;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+.lede{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0 0 6px}
+.lede a{white-space:nowrap}
+.stats{display:flex;flex-wrap:wrap;gap:4px 28px;margin-top:18px;padding-top:12px;border-top:2px solid var(--ink)}
+.stats div{font:11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.stats b{display:block;font:700 30px/1.05 var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:0}
+.stats .bar{flex:1 1 200px;align-self:end;padding-bottom:6px}
+.stats .bar i{display:block;height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.stats .bar i i{height:100%;width:0;background:var(--good);border-radius:0;transition:width .3s}
+
+/* control bar */
+.controls{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--rule);padding-block:10px}
+.controls .wrap{display:grid;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.seg button,.chip,.btn{font:600 13px var(--f-body);padding:6px 11px;border-radius:5px;border:1px solid var(--rule);background:var(--surface);color:var(--ink-2);cursor:pointer}
+.seg{display:inline-flex;border:1px solid var(--ink);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-left:1px solid var(--ink)}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chip{font-size:12.5px;padding:4px 10px;border-radius:999px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn:hover,.chip:hover{border-color:var(--ink-2)}
+#q{flex:1 1 220px;min-width:0;font:14px var(--f-body);padding:7px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--surface);color:var(--ink)}
+.only{font:12.5px var(--f-body);color:var(--ink-2);display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.only input{accent-color:var(--accent)}
+
+main{padding-block:10px 120px}
+.empty{padding:40px 0;color:var(--muted)}
+
+/* read mode */
+section.mod{margin-top:44px}
+.mod-h{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:4px}
+.mod-h .tag{font:600 11px var(--f-mono);color:var(--accent);border:1px solid var(--accent);padding:2px 7px;border-radius:3px;white-space:nowrap}
+.mod-h h2{font:700 clamp(26px,3.6vw,34px)/1.05 var(--f-display);margin:0;text-wrap:balance}
+.mod-h p{grid-column:2;margin:4px 0 0;color:var(--ink-2);font-size:15px;max-width:66ch}
+.term{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr) auto;gap:4px 20px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.term dt{font:700 19px/1.2 var(--f-display);letter-spacing:.005em;padding-top:2px}
+.term dt small{display:block;font:500 11.5px/1.4 var(--f-mono);color:var(--muted);letter-spacing:0;margin-top:3px}
+.term dd{margin:0;min-width:0}
+.term dd p{margin:0 0 6px;max-width:66ch}
+.term .vs{font-size:14px;color:var(--ink-2);background:var(--page-bg);border-radius:4px;padding:4px 8px;display:inline-block;margin:2px 0 6px}
+.term .vs b{color:var(--page);font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;margin-right:6px}
+.labs{display:flex;flex-wrap:wrap;gap:5px}
+.labs a{font:600 11px var(--f-mono);text-decoration:none;color:var(--accent);background:var(--accent-bg);padding:2px 7px;border-radius:3px}
+.labs a:hover{text-decoration:underline}
+.know{align-self:start;font:600 11.5px var(--f-mono);padding:4px 9px;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap}
+.know[aria-pressed="true"]{color:var(--good);border-color:var(--good);background:var(--good-bg)}
+mark{background:var(--page-bg);color:inherit;border-radius:2px;padding:0 1px}
+
+/* flashcards */
+.stage{margin-top:28px;display:grid;gap:14px;max-width:720px;margin-inline:auto}
+.card{position:relative;min-height:280px;border:1.5px solid var(--ink);border-radius:10px;background:var(--surface);padding:26px 28px;display:flex;flex-direction:column;justify-content:center;gap:12px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.card .meta{position:absolute;top:12px;left:16px;right:16px;display:flex;justify-content:space-between;font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.card .front{font:800 clamp(32px,5.5vw,48px)/1.02 var(--f-display);text-wrap:balance}
+.card .back{font-size:17px;line-height:1.6;color:var(--ink-2)}
+.card .hint{font:12px var(--f-mono);color:var(--muted)}
+.card.flipped{background:var(--accent-bg);border-color:var(--accent)}
+.card-nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.card-nav .grp{display:flex;gap:8px;flex-wrap:wrap}
+.btn.good{border-color:var(--good);color:var(--good)}
+.btn.again{border-color:var(--page);color:var(--page)}
+.kbd{font:12px var(--f-mono);color:var(--muted)}
+
+/* quiz */
+.quiz-q{border:1.5px solid var(--ink);border-radius:10px;background:var(--surface);padding:22px 24px}
+.quiz-q .meta{display:flex;justify-content:space-between;gap:10px;font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px}
+.quiz-q p.def{font-size:18px;line-height:1.55;margin:0 0 16px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.opts button{font:700 18px/1.2 var(--f-display);text-align:left;padding:12px 14px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);cursor:pointer}
+.opts button:hover:not(:disabled){border-color:var(--ink-2)}
+.opts button.right{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.opts button.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.opts button:disabled{cursor:default}
+.feedback{margin-top:12px;font-size:15px;color:var(--ink-2);min-height:24px}
+.score{font:12px var(--f-mono);color:var(--muted)}
+
+footer{margin-top:80px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+
+@media (max-width:720px){
+  .term{grid-template-columns:minmax(0,1fr) auto}
+  .term dd{grid-column:1 / -1;grid-row:2}
+  .mod-h{grid-template-columns:minmax(0,1fr)}
+  .mod-h p{grid-column:1}
+  .opts{grid-template-columns:minmax(0,1fr)}
+  .card{padding:34px 18px 20px}
+}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="eyebrow">Companion to SRE Field Labs</div>
+  <h1>SRE Field <span>Vocabulary</span></h1>
+  <p class="lede">The terms from the six course modules, in plain language, each linked to the lab where you use it. Read them, drill them as flashcards, then quiz yourself on definitions. <a href="https://claude.ai/artifact/Mk24Ku5T4ofRYkVUyse57w" target="_blank" rel="noopener">Open the labs</a></p>
+  <div class="stats">
+    <div><b id="s-terms">0</b>terms</div>
+    <div><b>6</b>course modules</div>
+    <div><b id="s-known">0</b>marked known</div>
+    <div class="bar"><i><i id="s-bar"></i></i></div>
+  </div>
+</div></header>
+
+<div class="controls"><div class="wrap">
+  <div class="row">
+    <div class="seg" role="group" aria-label="Mode">
+      <button type="button" id="m-read" data-mode="read" aria-pressed="true">Read</button>
+      <button type="button" id="m-cards" data-mode="cards" aria-pressed="false">Flashcards</button>
+      <button type="button" id="m-quiz" data-mode="quiz" aria-pressed="false">Quiz</button>
+    </div>
+    <input id="q" type="search" placeholder="Search terms and definitions" aria-label="Search terms">
+    <label class="only"><input type="checkbox" id="unknown-only"> Hide known</label>
+  </div>
+  <div class="row" id="mods" role="group" aria-label="Course module"></div>
+</div></div>
+
+<main><div class="wrap" id="view"></div>
+<div class="wrap"><footer>Module names follow the course on your learning platform. Definitions follow the Google SRE books, the DevOps Institute SRE Foundation syllabus, the Principles of Chaos Engineering and the OpenTelemetry documentation, restated in plain words. Your "known" marks are kept only in this browser.</footer></div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var LABS = "https://claude.ai/artifact/Mk24Ku5T4ofRYkVUyse57w";
+  var MODULES = [
+  {id:"sre", tag:"Module 1", name:"DevOps Foundations: Site Reliability Engineering", blurb:"What SRE is, how it relates to DevOps, and the practices that define it.", terms:[
+    ["Site Reliability Engineering (SRE)", "Running production systems as a software engineering problem: reliability is a measured feature, managed with SLOs and error budgets, and operational work is automated away.", null, ["contract"]],
+    ["DevOps", "A cultural and professional movement that removes the wall between development and operations so teams can ship changes quickly and safely.", "DevOps names the goals; SRE is one concrete way to meet them. Google's phrasing: class SRE implements interface DevOps.", ["contract"]],
+    ["CALMS", "A way to assess DevOps adoption: Culture, Automation, Lean, Measurement, Sharing.", null, ["contract"]],
+    ["Toil", "Operational work that is manual, repetitive, automatable, tactical, has no lasting value, and grows linearly as the service grows.", "Overhead (meetings, reviews) and engineering are not toil, even when they are tedious.", ["lab09"]],
+    ["50% cap on toil", "SRE teams keep operational work, toil included, to at most half of each engineer's time; the rest goes to engineering that reduces it.", null, ["lab09"]],
+    ["Error budget", "The amount of unreliability an SLO allows over its window: 1 minus the SLO. While budget remains, the team ships; when it runs out, reliability work takes priority.", null, ["lab02"]],
+    ["Error budget policy", "A written agreement, signed before it is needed, on what happens as the budget is spent: for example a release freeze at 100%, and a postmortem for any incident that uses more than 20%.", null, ["lab02"]],
+    ["Hierarchy of service reliability", "Mikey Dickerson's pyramid of what a service needs, from the base up: monitoring, incident response, postmortems, testing and release, capacity planning, development, product.", null, ["contract"]],
+    ["Production Readiness Review (PRR)", "An SRE review of whether a service is ready to be run reliably: monitoring, capacity, failure modes, dependencies, runbooks and on-call. Done before launch or before SRE takes the service on.", null, ["final"]],
+    ["SRE engagement models", "Ways an organization can staff SRE: kitchen sink (everything), infrastructure, tools, product or application, embedded in a dev team, or consulting.", null, []],
+    ["On-call", "A rotation of engineers who respond to pages. SRE keeps it sustainable by bounding the load; the Google SRE book aims for at most two incidents per 12-hour shift.", null, ["lab13"]],
+    ["Runbook (playbook)", "Written steps for handling a specific alert or procedure. Every page should link to one.", null, ["lab03","lab15"]],
+    ["Release engineering", "Building and delivering software reliably: reproducible builds, versioned artifacts, and controlled, reversible rollouts.", null, ["lab08","lab09"]],
+    ["Infrastructure as Code (IaC)", "Describing infrastructure in versioned, reviewed files that a tool applies to reach the declared state. Deploying twice changes nothing the second time.", null, ["lab09"]],
+    ["Configuration drift", "When what is running no longer matches what the code says, usually because of manual changes.", null, ["lab09"]],
+    ["DORA metrics", "Four measures of software delivery performance from the DevOps Research and Assessment program: deployment frequency, lead time for changes, change failure rate, and time to restore service.", null, []],
+    ["Shift left", "Moving testing, security and reliability work earlier in the delivery process, where problems are cheaper to fix.", null, []],
+    ["Psychological safety", "A team climate where people can admit mistakes and raise concerns without fear. Blameless postmortems depend on it.", null, ["lab14"]],
+    ["Westrum culture model", "Ron Westrum's three organizational cultures: pathological (power-oriented), bureaucratic (rule-oriented) and generative (performance-oriented). Generative cultures share information best and predict better delivery performance.", null, ["lab14"]],
+    ["Hope is not a strategy", "An informal SRE motto: reliability comes from measurement, testing and practice, not from expecting things to work.", null, ["lab11"]]
+  ]},
+  {id:"cert", tag:"Module 2", name:"DevOps Institute Cert Prep: SRE Foundation", blurb:"Exam vocabulary beyond the basics: learning from failure, incidents, capacity and how SRE sits next to other frameworks.", terms:[
+    ["Antifragility", "Nassim Taleb's term for systems that get stronger from stress and disorder, beyond merely surviving it (robust). In SRE: learning from every failure and injecting failure on purpose.", null, ["lab11","lab14"]],
+    ["Wheel of Misfortune", "A role-play exercise in which an on-call engineer handles a replayed past incident while a game master reveals what the system does. Used to train and assess on-call readiness.", null, ["lab13"]],
+    ["DiRT (Disaster Recovery Testing)", "Google's recurring program of large planned disaster exercises, testing systems and people against scenarios such as losing a data center.", null, ["lab15"]],
+    ["Incident", "An unplanned event that disrupts or degrades a service, or threatens to.", null, ["lab13"]],
+    ["Incident Commander (IC)", "The person who coordinates an incident response: assigns roles, makes decisions, keeps the overview. The IC does not debug.", null, ["lab13"]],
+    ["Incident Command System", "A role-based structure for incident response borrowed from emergency services: incident commander, operations, communications and planning, with explicit handoffs.", null, ["lab13"]],
+    ["Severity level", "A classification of an incident's impact (for example SEV1 to SEV3) that decides who is paged and how often stakeholders are updated.", null, ["lab13"]],
+    ["Mitigation", "Action that stops or reduces user impact, such as rolling back, failing over or shedding load, taken before the root cause is understood.", "Resolution is the later, complete fix.", ["lab13"]],
+    ["Contributing factors", "The several conditions that together allowed an incident. Postmortems list them instead of naming one root cause.", null, ["lab14"]],
+    ["Five whys", "Asking why repeatedly to dig beneath a symptom. Useful for digging, but it produces one linear chain and tends to stop at a person.", null, ["lab14"]],
+    ["Action item", "A specific, owned, dated change from a postmortem, typed as prevent, detect, mitigate or process.", null, ["lab14"]],
+    ["MTBF", "Mean time between failures: the average time a system runs between failures.", null, ["lab13"]],
+    ["MTTD / MTTA / MTTR", "Mean time to detect, acknowledge, and repair or restore. Useful for discussion; statistically weak as targets because incident durations are few and skewed.", null, ["lab13"]],
+    ["Capacity planning", "Forecasting demand and provisioning to meet it with headroom, then verifying with load tests, including the loss of a failure domain.", null, ["lab04","lab07","lab10"]],
+    ["Organic vs inorganic demand", "Organic growth comes from normal adoption; inorganic growth comes from events such as launches, marketing campaigns or on-sales. Capacity plans need both.", null, ["lab07"]],
+    ["Load testing", "Driving a service with synthetic traffic to measure its capacity, find its bottleneck and see how it behaves past the limit.", null, ["lab04","lab07"]],
+    ["ITIL / ITSM", "IT Service Management and its best-known framework, ITIL. SRE overlaps with its incident, problem and change management, with more automation and less approval-board process.", null, []],
+    ["Change management", "Controlling changes to production. Traditional: an advisory board approves changes. SRE: small, automated, progressive rollouts gated by SLIs and the error budget.", null, ["lab08"]],
+    ["DevSecOps", "Building security into the DevOps pipeline and culture rather than adding it at the end.", null, []],
+    ["AIOps", "Using analytics and machine learning on operations data to detect anomalies, correlate alerts and reduce noise.", null, []],
+    ["Value stream", "The sequence of steps from an idea to value delivered to a customer. Value stream mapping finds the waits and handoffs that slow delivery.", null, []]
+  ]},
+  {id:"slo", tag:"Module 3", name:"Site Reliability Engineering: Service-Level Agreements and Objectives", blurb:"How reliability becomes a number, a target and a contract.", terms:[
+    ["SLI (service level indicator)", "The proportion of valid events that were good, measured as close to the user as possible: good events divided by valid events.", null, ["lab01"]],
+    ["SLO (service level objective)", "A target for an SLI over a time window, for example 99.5% of checkouts succeed over a rolling 28 days.", null, ["lab02"]],
+    ["SLA (service level agreement)", "A contract with consequences, such as service credits, if a level is not met. Set looser than the SLO so the SLO warns you first.", "SLO is the internal target; SLA is the external promise.", ["lab02"]],
+    ["Critical user journey (CUJ)", "A sequence of interactions that matters most to users, such as search, reserve and pay. SLIs are chosen per journey.", null, ["lab01"]],
+    ["Good events / valid events", "Valid events are the ones the SLI counts at all (excluding health checks and client mistakes); good events are the valid ones that succeeded within the threshold.", null, ["lab01"]],
+    ["Availability SLI", "The share of valid requests served successfully.", null, ["lab01"]],
+    ["Latency SLI", "The share of valid requests served faster than a threshold, for example 95% under 400 ms.", null, ["lab01"]],
+    ["Quality SLI", "The share of requests served without degradation, for example with full results rather than a fallback.", null, ["lab06"]],
+    ["Freshness, correctness, coverage", "SLI types for data pipelines: how recent the output is, how much of it is right, and how much of the input was processed.", null, []],
+    ["Durability", "The likelihood that stored data can be read back later. The SLI type for storage systems.", null, ["lab15"]],
+    ["Request-based vs window-based SLI", "Request-based: share of good requests. Window-based: share of time slices (say, minutes) that met a condition. Request-based weights busy periods more.", null, ["lab02"]],
+    ["Percentile (p50, p95, p99)", "The value below which that share of measurements falls. p99 latency of 800 ms means 1 request in 100 took longer.", null, ["lab01","lab04"]],
+    ["Tail latency", "The slow end of the latency distribution (p99 and above). It dominates user experience when one page fans out to many backends.", null, ["lab04"]],
+    ["The nines", "Shorthand for availability levels. Over 30 days: 99% allows 7.2 hours of downtime, 99.9% about 43 minutes, 99.99% about 4.3 minutes.", null, ["lab02"]],
+    ["Rolling vs calendar window", "A rolling window (the last 28 days) matches how users remember; a calendar window (this month) matches billing and resets the budget abruptly.", null, ["lab02"]],
+    ["Composite availability", "Availability of a request path built from components. In series, multiply them; for independent redundant copies, 1 minus the product of their unavailabilities.", null, ["lab02"]],
+    ["Burn rate", "How fast the error budget is being spent, relative to spending it evenly over the window: observed error rate divided by (1 minus SLO).", null, ["lab03"]],
+    ["Multi-window, multi-burn-rate alert", "Paging only when a long window and a short window both exceed a burn rate, for example 14.4x over 1 hour and 5 minutes. The long window proves significance; the short one proves it is still happening.", null, ["lab03"]],
+    ["Service credit", "The compensation an SLA promises when the provider misses it, usually a percentage of the bill.", null, ["lab02"]],
+    ["Aspirational vs achievable SLO", "An achievable SLO is one you meet today; an aspirational SLO is where you want to be. Start achievable and tighten with evidence.", null, ["lab02"]]
+  ]},
+  {id:"chaos", tag:"Module 4", name:"DevOps Foundations: Chaos Engineering", blurb:"Breaking things on purpose, safely, to learn how they really fail, and the patterns that contain failure.", terms:[
+    ["Chaos engineering", "Running controlled experiments on a system to build confidence that it withstands turbulent real-world conditions.", null, ["lab11"]],
+    ["Principles of Chaos Engineering", "Define steady state, hypothesize that it continues, vary real-world events, run experiments in production, automate them to run continuously, and minimize blast radius.", null, ["lab11"]],
+    ["Steady state", "A measurable output that shows the system is behaving normally for users, such as checkout success rate and p95 latency.", "Not internal health like all pods running.", ["lab11"]],
+    ["Hypothesis", "The prediction an experiment tests: steady state will hold when this fault is injected.", null, ["lab11"]],
+    ["Blast radius", "How much of the system and how many users a fault or change can affect. Experiments start with the smallest blast radius that answers the question.", null, ["lab08","lab11"]],
+    ["Abort condition", "A preset threshold at which an experiment is stopped immediately, such as checkout errors above 5% for one minute.", null, ["lab11"]],
+    ["Game day", "A scheduled event in which a team deliberately injects failures and practises responding to them.", null, ["lab11","lab13"]],
+    ["Fault injection", "Introducing faults such as killed processes, added latency, dropped packets or full disks to observe how a system responds.", null, ["lab11"]],
+    ["Chaos Monkey", "Netflix's tool that randomly terminates production instances so services must tolerate instance loss. Part of the Simian Army, which includes Chaos Kong for whole-region evacuation.", null, ["lab11"]],
+    ["Azure Chaos Studio", "Azure's managed chaos engineering service. An experiment runs faults against targets; each target enables capabilities. Faults are service-direct (through Azure APIs) or agent-based (via an agent on the VM).", null, ["lab11"]],
+    ["Fault vs failure", "A fault is one component deviating from its spec; a failure is the system as a whole stopping service to users. Fault tolerance keeps faults from becoming failures.", null, ["lab10"]],
+    ["Resilience", "A system's ability to keep serving, perhaps degraded, through faults, and to recover afterwards.", null, ["lab10","lab11"]],
+    ["Failure domain", "A set of components that fail together: a process, host, availability zone, region, or a shared configuration.", null, ["lab10"]],
+    ["Redundancy and N+k", "Running more copies than peak load needs, so losing k of them still leaves enough. Across Z zones, each zone must carry peak divided by (Z minus 1).", null, ["lab10"]],
+    ["Failover", "Moving service from a failed component to a standby. Never instant: detection, promotion, routing and client reconnection all take time.", null, ["lab10","lab15"]],
+    ["Static stability", "Continuing to work through a failure using only capacity that is already running, without needing autoscaling or other control-plane actions.", null, ["lab10"]],
+    ["Graceful degradation", "Serving a reduced but useful experience when a dependency fails, for example a page without recommendations.", null, ["lab06"]],
+    ["Cascading failure", "A failure in one part that spreads by exhausting shared resources (threads, connections, capacity) in others.", null, ["lab06"]],
+    ["Bulkhead", "A separate, bounded pool of resources for one dependency or workload, so its failure cannot consume everything.", null, ["lab06"]],
+    ["Circuit breaker", "A client-side switch that stops calling a failing dependency for a period, then lets a probe through before resuming.", null, ["lab05"]],
+    ["Exponential backoff with jitter", "Waiting longer after each failed retry, with a random component, so clients don't retry in synchronized waves.", null, ["lab05"]],
+    ["Metastable failure", "An overload that persists after its trigger is gone, kept alive by a feedback loop such as retries.", null, ["lab05"]],
+    ["Load shedding", "Deliberately rejecting some work under overload, quickly and cheaply, to keep serving the rest.", null, ["lab07"]]
+  ]},
+  {id:"mon", tag:"Module 5", name:"DevOps Foundations: Monitoring and Observability", blurb:"Seeing what a system does, alerting on what matters, and asking new questions of it.", terms:[
+    ["Monitoring", "Collecting and acting on known signals: checking predicted conditions and alerting when they occur.", null, ["lab01","lab03"]],
+    ["Observability", "The ability to answer new questions about a system's behaviour from its telemetry, without shipping new code.", "Monitoring covers known unknowns; observability covers unknown unknowns.", ["lab12"]],
+    ["Telemetry", "Data a system emits about itself: metrics, logs, traces, and increasingly profiles.", null, ["lab12"]],
+    ["Metric", "A numeric measurement aggregated over time, such as request count or CPU usage. Cheap to store and query, but loses per-request detail.", null, ["lab12"]],
+    ["Log", "A timestamped record of a discrete event. Structured logs (key-value or JSON) can be queried; free text mostly cannot.", null, ["lab12"]],
+    ["Trace", "The record of one request's path through a distributed system, made of spans that share a trace ID.", null, ["lab12"]],
+    ["Three pillars", "Metrics, logs and traces as the main telemetry types. Their real value comes from correlating them through shared context.", null, ["lab12"]],
+    ["Four golden signals", "From the Google SRE book: latency, traffic, errors and saturation. Monitor these for any user-facing system.", null, ["lab01"]],
+    ["RED method", "Rate, errors, duration: the request metrics to watch for every service.", null, ["lab12"]],
+    ["USE method", "Utilization, saturation, errors: the checks for every resource (CPU, memory, pools, locks) when hunting a bottleneck.", "RED is per service, USE is per resource.", ["lab04"]],
+    ["Saturation", "How full a resource is, often visible as work waiting in a queue. The leading indicator before latency rises.", null, ["lab04"]],
+    ["White-box monitoring", "Monitoring based on a system's internals: its own metrics, logs and traces.", null, ["lab01"]],
+    ["Black-box monitoring", "Testing externally visible behaviour as a user would, without knowledge of internals.", null, ["lab01"]],
+    ["Synthetic monitoring", "Scripted probes that exercise a journey on a schedule from chosen locations, even when no real users are active.", null, ["lab01"]],
+    ["Real user monitoring (RUM)", "Collecting performance and errors from real users' browsers or apps.", null, ["lab01"]],
+    ["Symptom vs cause", "A symptom is what users experience (errors, slowness); a cause is why (high CPU, a full disk). Page on symptoms; investigate causes.", null, ["lab03"]],
+    ["Alert fatigue", "Desensitization from too many non-actionable alerts, which leads to real alerts being missed.", null, ["lab03"]],
+    ["Page vs ticket", "A page demands immediate human action to protect users; a ticket can wait for working hours. Everything else belongs on a dashboard.", null, ["lab03"]],
+    ["Cardinality", "The number of distinct values of a label or attribute. High-cardinality data (user ID, product ID) is what lets you slice; it is expensive in metrics and cheap in traces and logs.", null, ["lab12"]],
+    ["Histogram", "A metric that counts observations in buckets, so percentiles can be estimated after aggregation.", null, ["lab12"]],
+    ["Health check: liveness vs readiness", "Liveness asks whether the process should be restarted; readiness asks whether it should receive traffic now. A liveness check that depends on other services causes restart storms.", null, ["lab06"]],
+    ["APM (application performance monitoring)", "Tooling that combines request metrics, traces and dependency maps for applications, such as Azure Application Insights.", null, ["lab01","lab04"]]
+  ]},
+  {id:"otel", tag:"Module 6", name:"Mastering Observability with OpenTelemetry", blurb:"The vendor-neutral standard for producing, collecting and exporting telemetry.", terms:[
+    ["OpenTelemetry (OTel)", "An open-source, vendor-neutral set of APIs, SDKs, tools and protocols for generating and collecting traces, metrics and logs. A CNCF project.", null, ["lab12"]],
+    ["Signal", "A category of telemetry in OpenTelemetry: traces, metrics, logs, and (in development) profiles.", null, ["lab12"]],
+    ["API vs SDK", "The API is what code calls to create telemetry and does nothing on its own; the SDK is the implementation that samples, processes and exports it. Libraries depend only on the API.", null, ["lab12"]],
+    ["Instrumentation", "Code that produces telemetry. Manual instrumentation is written by you; zero-code (automatic) instrumentation is added by agents or libraries without code changes.", null, ["rig","lab12"]],
+    ["Distro", "A packaged OpenTelemetry SDK with a vendor's defaults and exporters, such as the Azure Monitor OpenTelemetry Distro used by Boxoffice.", null, ["rig"]],
+    ["Span", "One timed operation within a trace, with a name, start and end time, attributes, events, a status and a link to its parent.", null, ["lab12"]],
+    ["Trace ID and span ID", "A 16-byte trace ID shared by every span of one request, and an 8-byte span ID unique to each span.", null, ["lab12"]],
+    ["Root span and parent span", "The root span starts a trace and has no parent; every other span records the span that caused it.", null, ["lab12"]],
+    ["Span kind", "The role of a span: SERVER, CLIENT, PRODUCER, CONSUMER or INTERNAL.", null, ["lab12"]],
+    ["Span status", "Unset, Ok or Error. Error marks a failed operation and drives error rates and error-based sampling.", null, ["lab12"]],
+    ["Attributes", "Key-value pairs on spans, metrics and logs, such as http.route or app.product.id.", null, ["lab08","lab12"]],
+    ["Span event", "A timestamped annotation within a span, such as an exception being thrown.", null, ["lab12"]],
+    ["Resource", "Attributes describing the entity that produced the telemetry, such as service.name, service.version and the host or pod.", null, ["rig","lab12"]],
+    ["Semantic conventions", "Standard names and meanings for common attributes (http.request.method, db.system and so on), so telemetry from different sources lines up.", null, ["lab12"]],
+    ["Context propagation", "Passing trace context across process boundaries, usually in request headers, so spans from different services join one trace.", null, ["lab12"]],
+    ["W3C Trace Context", "The standard headers for propagation. traceparent carries version, trace ID, parent span ID and flags; tracestate carries vendor data.", null, ["lab12"]],
+    ["Baggage", "Key-value pairs propagated with the context to downstream services, such as a tenant ID. Not added to spans automatically.", null, ["lab12"]],
+    ["OTLP", "The OpenTelemetry Protocol for sending telemetry, over gRPC (default port 4317) or HTTP (default port 4318).", null, ["lab12"]],
+    ["Collector", "A standalone service that receives, processes and exports telemetry. Runs as an agent beside workloads or as a central gateway.", null, ["lab12"]],
+    ["Receiver, processor, exporter", "The Collector's building blocks: receivers take data in, processors transform, filter, batch or sample it, exporters send it to backends.", null, ["lab12"]],
+    ["Connector", "A Collector component that joins pipelines, consuming one signal and producing another, such as the span metrics connector deriving RED metrics from traces.", null, ["lab12"]],
+    ["Pipeline", "A configured path through the Collector for one signal: receivers, then processors, then exporters.", null, ["lab12"]],
+    ["Head sampling", "Deciding whether to keep a trace when it starts, for example 10% of trace IDs. Cheap, but drops rare errors at the same rate as everything else.", null, ["lab12"]],
+    ["Tail sampling", "Deciding after a trace completes, so every error and slow trace can be kept. Needs all spans of a trace in one place and memory to hold them.", null, ["lab12"]],
+    ["Metric instruments", "Counter (only goes up), UpDownCounter, Histogram and Gauge, each with asynchronous (observable) variants read by callback.", null, ["lab12"]],
+    ["Aggregation temporality", "Whether metric points report the total since start (cumulative) or the change since the last report (delta).", null, ["lab12"]],
+    ["Exemplar", "A sample trace ID attached to a metric data point, linking an aggregate (say, a latency spike) to a concrete request.", null, ["lab12"]]
+  ]}];
+
+  var LAB_LABEL = function(id){ return id === "contract" ? "Ch 01" : id === "rig" ? "Rig" : id === "final" ? "Final" : "Lab " + id.slice(3); };
+  var ALL = [];
+  MODULES.forEach(function(m){ m.terms.forEach(function(t, i){ ALL.push({id: m.id + "-" + i, mod: m, t: t[0], d: t[1], vs: t[2], labs: t[3]}); }); });
+
+  function load(k, d){ try{ var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  var known = load("sre-vocab-known", {});
+  var state = {mode: "read", mod: "all", q: "", hideKnown: false};
+  var $ = function(s){ return document.querySelector(s); };
+  function esc(s){ return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function hl(s){
+    var e = esc(s); if(!state.q) return e;
+    var q = state.q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return e.replace(new RegExp("(" + esc(q).replace(/&amp;/g, "&amp;") + ")", "gi"), "<mark>$1</mark>");
+  }
+  function filtered(){
+    var q = state.q.toLowerCase();
+    return ALL.filter(function(x){
+      if(state.mod !== "all" && x.mod.id !== state.mod) return false;
+      if(state.hideKnown && known[x.id]) return false;
+      if(q && (x.t + " " + x.d + " " + (x.vs || "")).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+  function stats(){
+    var n = Object.keys(known).filter(function(k){ return known[k]; }).length;
+    $("#s-terms").textContent = ALL.length; $("#s-known").textContent = n;
+    $("#s-bar").style.width = (n / ALL.length * 100) + "%";
+  }
+  function toggleKnown(id){ if(known[id]) delete known[id]; else known[id] = 1; save("sre-vocab-known", known); stats(); }
+
+  /* module chips */
+  var mods = $("#mods");
+  [{id: "all", tag: "All modules"}].concat(MODULES).forEach(function(m){
+    var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.id = "mod-" + m.id;
+    b.textContent = m.id === "all" ? "All modules" : m.tag + " · " + m.name.replace(/^.*?: /, "").replace("Mastering Observability with ", "");
+    if(m.id === "cert") b.textContent = "Module 2 · SRE Foundation exam";
+    b.setAttribute("aria-pressed", m.id === state.mod ? "true" : "false");
+    b.addEventListener("click", function(){ state.mod = m.id; Array.prototype.forEach.call(mods.children, function(c){ c.setAttribute("aria-pressed", c === b ? "true" : "false"); }); render(true); });
+    mods.appendChild(b);
+  });
+
+  /* read */
+  function renderRead(list){
+    var view = $("#view"), html = "";
+    if(!list.length){ view.innerHTML = '<p class="empty">No terms match. Clear the search or show known terms.</p>'; return; }
+    MODULES.forEach(function(m){
+      var items = list.filter(function(x){ return x.mod === m; }); if(!items.length) return;
+      html += '<section class="mod" id="' + m.id + '"><div class="mod-h"><span class="tag">' + m.tag + '</span><h2>' + esc(m.name) + '</h2><p>' + esc(m.blurb) + '</p></div><dl>';
+      items.forEach(function(x){
+        html += '<div class="term"><dt>' + hl(x.t) + '</dt><dd><p>' + hl(x.d) + '</p>' +
+          (x.vs ? '<span class="vs"><b>Don’t confuse</b>' + hl(x.vs) + '</span>' : '') +
+          (x.labs.length ? '<div class="labs">' + x.labs.map(function(l){ return '<a href="' + LABS + '#' + l + '" target="_blank" rel="noopener">' + LAB_LABEL(l) + '</a>'; }).join("") + '</div>' : '') +
+          '</dd><button type="button" class="know" data-id="' + x.id + '" aria-pressed="' + (known[x.id] ? "true" : "false") + '">' + (known[x.id] ? "known" : "learning") + '</button></div>';
+      });
+      html += '</dl></section>';
+    });
+    view.innerHTML = html;
+  }
+  $("#view").addEventListener("click", function(e){
+    var b = e.target.closest(".know"); if(!b) return;
+    toggleKnown(b.getAttribute("data-id"));
+    var on = !!known[b.getAttribute("data-id")]; b.setAttribute("aria-pressed", on ? "true" : "false"); b.textContent = on ? "known" : "learning";
+  });
+
+  /* flashcards */
+  var deck = [], pos = 0, flipped = false;
+  function shuffle(a){ for(var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function renderCards(reset){
+    if(reset){ deck = shuffle(filtered().slice()); pos = 0; flipped = false; }
+    var view = $("#view");
+    if(!deck.length){ view.innerHTML = '<p class="empty">No cards in this selection. Pick another module or show known terms.</p>'; return; }
+    if(pos >= deck.length){
+      view.innerHTML = '<div class="stage"><div class="card"><span class="front">Deck done</span><span class="back">' + deck.length + ' cards reviewed. Shuffle to go again, or switch on Hide known to drill only what is left.</span></div><div class="card-nav"><span></span><button type="button" class="btn" id="c-shuffle">Shuffle again</button></div></div>';
+      $("#c-shuffle").addEventListener("click", function(){ renderCards(true); }); return;
+    }
+    var x = deck[pos];
+    view.innerHTML = '<div class="stage"><button type="button" class="card' + (flipped ? " flipped" : "") + '" id="c-card" aria-live="polite">' +
+      '<span class="meta"><span>' + esc(x.mod.tag) + '</span><span>' + (pos + 1) + ' / ' + deck.length + '</span></span>' +
+      (flipped ? '<span class="back">' + esc(x.d) + (x.vs ? '<br><br><em>' + esc(x.vs) + '</em>' : '') + '</span><span class="hint">' + esc(x.t) + '</span>'
+               : '<span class="front">' + esc(x.t) + '</span><span class="hint">Say the definition out loud, then click or press Space</span>') +
+      '</button><div class="card-nav"><div class="grp"><button type="button" class="btn" id="c-prev">Back</button><button type="button" class="btn" id="c-shuf">Shuffle</button></div>' +
+      '<div class="grp"><button type="button" class="btn again" id="c-again">Still learning</button><button type="button" class="btn good" id="c-know">I knew it</button></div></div>' +
+      '<span class="kbd">Keys: Space flips, ← back, 1 still learning, 2 knew it</span></div>';
+    $("#c-card").addEventListener("click", flip);
+    $("#c-prev").addEventListener("click", function(){ if(pos > 0){ pos--; flipped = false; renderCards(); } });
+    $("#c-shuf").addEventListener("click", function(){ renderCards(true); });
+    $("#c-again").addEventListener("click", function(){ grade(false); });
+    $("#c-know").addEventListener("click", function(){ grade(true); });
+  }
+  function flip(){ flipped = !flipped; renderCards(); var c = $("#c-card"); if(c) c.focus(); }
+  function grade(k){
+    var x = deck[pos]; if(!x) return;
+    if(k && !known[x.id]) toggleKnown(x.id);
+    if(!k && known[x.id]) toggleKnown(x.id);
+    if(!k) deck.push(x);
+    pos++; flipped = false; renderCards();
+  }
+
+  /* quiz */
+  var quiz = {q: null, right: 0, total: 0, answered: false};
+  function nextQuestion(){
+    var pool = filtered();
+    if(pool.length < 4) pool = ALL.filter(function(x){ return state.mod === "all" || x.mod.id === state.mod; });
+    if(pool.length < 4) pool = ALL;
+    var ans = pool[Math.floor(Math.random() * pool.length)];
+    var same = ALL.filter(function(x){ return x.mod === ans.mod && x !== ans; });
+    var opts = shuffle(same.slice()).slice(0, 3).concat([ans]);
+    quiz.q = {ans: ans, opts: shuffle(opts)}; quiz.answered = false;
+  }
+  function renderQuiz(reset){
+    if(reset || !quiz.q) nextQuestion();
+    var q = quiz.q, view = $("#view");
+    var def = esc(q.ans.d);
+    view.innerHTML = '<div class="stage"><div class="quiz-q"><div class="meta"><span>' + esc(q.ans.mod.tag) + ' · which term is this?</span><span class="score">' + quiz.right + ' / ' + quiz.total + ' right</span></div>' +
+      '<p class="def">' + def + '</p><div class="opts">' + q.opts.map(function(o, i){ return '<button type="button" data-i="' + i + '">' + esc(o.t) + '</button>'; }).join("") + '</div>' +
+      '<div class="feedback" id="z-fb" aria-live="polite"></div></div><div class="card-nav"><button type="button" class="btn" id="z-reset">Reset score</button><button type="button" class="btn" id="z-next">Next question</button></div></div>';
+    Array.prototype.forEach.call(view.querySelectorAll(".opts button"), function(b){
+      b.addEventListener("click", function(){
+        if(quiz.answered) return; quiz.answered = true; quiz.total++;
+        var pick = q.opts[+b.getAttribute("data-i")], ok = pick === q.ans; if(ok) quiz.right++;
+        Array.prototype.forEach.call(view.querySelectorAll(".opts button"), function(o){ var t = q.opts[+o.getAttribute("data-i")]; o.disabled = true; if(t === q.ans) o.classList.add("right"); else if(o === b) o.classList.add("wrong"); });
+        $("#z-fb").innerHTML = ok ? "Right." : "It's <strong>" + esc(q.ans.t) + "</strong>. " + esc(pick.t) + ": " + esc(pick.d);
+        view.querySelector(".score").textContent = quiz.right + " / " + quiz.total + " right";
+      });
+    });
+    $("#z-next").addEventListener("click", function(){ renderQuiz(true); });
+    $("#z-reset").addEventListener("click", function(){ quiz.right = 0; quiz.total = 0; renderQuiz(false); });
+  }
+
+  /* modes & controls */
+  function render(reset){
+    if(state.mode === "read") renderRead(filtered());
+    else if(state.mode === "cards") renderCards(reset !== false);
+    else renderQuiz(reset !== false);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+    b.addEventListener("click", function(){
+      state.mode = b.getAttribute("data-mode");
+      Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      render(true);
+    });
+  });
+  $("#q").addEventListener("input", function(){ state.q = this.value.trim(); render(true); });
+  $("#unknown-only").addEventListener("change", function(){ state.hideKnown = this.checked; render(true); });
+  document.addEventListener("keydown", function(e){
+    if(state.mode !== "cards" || e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" && e.key === " ") return;
+    if(e.key === " "){ e.preventDefault(); flip(); }
+    else if(e.key === "ArrowLeft" && pos > 0){ pos--; flipped = false; renderCards(); }
+    else if(e.key === "1") grade(false);
+    else if(e.key === "2") grade(true);
+  });
+  if(["cards", "quiz"].indexOf(location.hash.slice(1)) > -1){ var mb = $("#m-" + location.hash.slice(1)); if(mb) mb.click(); }
+
+  stats();
+  render(true);
+})();
+</script>
+
+</body>
+</html>
